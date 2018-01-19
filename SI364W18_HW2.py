@@ -36,8 +36,10 @@ app.config['SECRET_KEY'] = 'hardtoguessstring'
 ###### FORMS #######
 ####################
 
-
-
+class AlbumEntryForm():
+    name = StringField(label=u'Enter the name of an album', validators=[Required()])
+    rating = RadioField(label=u'How much do you like this album (1 low, 3 high)', choices=['1', '2', '3'], validators=[Required()])
+    submit = SubmitField(label="Submit")
 
 ####################
 ###### ROUTES ######
@@ -47,21 +49,21 @@ app.config['SECRET_KEY'] = 'hardtoguessstring'
 def hello_world():
     return 'Hello World!'
 
-
 @app.route('/user/<name>')
 def hello_user(name):
     return '<h1>Hello {0}<h1>'.format(name)
 
-@app.route('/artistinfo')
+@app.route('/artistinfo', methods=[ 'GET'])
 def artist_info():
-    name = request.form['artist']
-    url = 'https://itunes.apple.com/search?entity=musicTrack&term={}'.format(name)
-    r = requests.get(url)
-    artist = r.json()['results']
-    objs = []
-    for a in artist:
-        objs.append({'trackName':a['trackName'], 'trackViewUrl':a['trackViewUrl']})
-    return render_template('artist_info.html', objects=objs)
+    if request.method == "GET":
+        name = request.args['artist']
+        url = 'https://itunes.apple.com/search?entity=musicTrack&term={}'.format(name)
+        r = requests.get(url)
+        artist = r.json()['results']
+        objs = []
+        for a in artist:
+            objs.append({'trackName':a['trackName'], 'trackViewUrl':a['trackViewUrl']})
+        return render_template('artist_info.html', objects=objs)
 
 @app.route('/artistlinks')
 def artist_links():
@@ -77,6 +79,15 @@ def specific_artist(artist_name):
     r = requests.get(url)
     objs = r.json()['results']
     return render_template('specific_artist.html', results=objs)
+
+@app.route('/album_entry')
+def album_entry():
+    form_var = AlbumEntryForm()
+    return render_template('album_entry.html', form=form_var)
+
+@app.route('/album_result')
+def album_data():
+    return "str2"
 
 if __name__ == '__main__':
     app.run(use_reloader=True,debug=True)
