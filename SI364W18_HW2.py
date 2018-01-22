@@ -13,33 +13,28 @@
 #############################
 ##### IMPORT STATEMENTS #####
 #############################
-
-from flask import Flask, request, render_template
-#import FlaskForm
-from wtforms import StringField, SubmitField, RadioField, ValidationError
-from wtforms.validators import Required
-
+from flask import Flask, request, render_template, redirect, url_for, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, RadioField, ValidationError
+from wtforms import StringField, IntegerField, SubmitField, RadioField
 from wtforms.validators import Required
 
 import requests
-
+import json
 #####################
 ##### APP SETUP #####
 #####################
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'hardtoguessstring'
+app.config['SECRET_KEY'] = 'uniquestring'
 
 ####################
 ###### FORMS #######
 ####################
 
-class AlbumEntryForm():
-    name = StringField(label=u'Enter the name of an album', validators=[Required()])
-    rating = RadioField(label=u'How much do you like this album (1 low, 3 high)', choices=['1', '2', '3'], validators=[Required()])
-    submit = SubmitField(label="Submit")
+class AlbumEntryForm(FlaskForm):
+    album = StringField('Enter the name of an album', validators=[Required()])
+    rating = RadioField('How much do you like this album? (1 low, 3 high)', choices=[(1, '1'), (2, '2'), (1, '3')], validators=[Required()])
+    submit = SubmitField('Submit')
 
 ####################
 ###### ROUTES ######
@@ -80,14 +75,18 @@ def specific_artist(artist_name):
     objs = r.json()['results']
     return render_template('specific_artist.html', results=objs)
 
-@app.route('/album_entry')
+@app.route('/album_entry', methods=['GET'])
 def album_entry():
     form_var = AlbumEntryForm()
     return render_template('album_entry.html', form=form_var)
 
 @app.route('/album_result')
 def album_data():
-    return "str2"
+    if form.validate_on_submit() and request.method == "get":
+        album_name = form.album.data
+        rating = form.rating.data
+        return render_template('album_data.html', name=album_name, rating=album_rating)
+    return "Sorry, no data avaiable."
 
 if __name__ == '__main__':
     app.run(use_reloader=True,debug=True)

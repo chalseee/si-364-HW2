@@ -1,7 +1,8 @@
 <html>
-  <form action="{{url_for('album_data')}}" method="post">
-    {{ form.name.label }} {{ form.name }}
-    {{ form.rating.label }} {{form.rating }}
-    {{ form.submit }}
-   </form>
+  <form method="POST" action="/album_result">
+    {{ form.hidden_tag() }}
+    <p> {{ form.album.label }} {{ form.album() }} </p>
+    <p> {{ form.rating.label }} {{ form.rating() }} </p>
+    {{ form.submit() }}
+  </form>
 </html>
