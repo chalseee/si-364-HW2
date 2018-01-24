@@ -10,6 +10,8 @@
 
 ## As part of the homework, you may also need to add templates (new .html files) to the templates directory.
 
+##I worked w/Kayla Williams and Amanda Gomez
+
 #############################
 ##### IMPORT STATEMENTS #####
 #############################
@@ -33,7 +35,7 @@ app.config['SECRET_KEY'] = 'uniquestring'
 
 class AlbumEntryForm(FlaskForm):
     album = StringField('Enter the name of an album', validators=[Required()])
-    rating = RadioField('How much do you like this album? (1 low, 3 high)', choices=[(1, '1'), (2, '2'), (1, '3')], validators=[Required()])
+    rating = RadioField('How much do you like this album? (1 low, 3 high)', choices=[('1', 1), ('2', 2), ('3', 3)], validators=[Required()])
     submit = SubmitField('Submit')
 
 ####################
@@ -75,18 +77,20 @@ def specific_artist(artist_name):
     objs = r.json()['results']
     return render_template('specific_artist.html', results=objs)
 
-@app.route('/album_entry', methods=['GET'])
+@app.route('/album_entry')
 def album_entry():
     form_var = AlbumEntryForm()
     return render_template('album_entry.html', form=form_var)
 
-@app.route('/album_result')
-def album_data():
-    if form.validate_on_submit() and request.method == "get":
-        album_name = form.album.data
+@app.route('/album_result', methods = ['GET', 'POST'])
+def album_result():
+    form = AlbumEntryForm(request.form)
+    if request.method == 'POST' and form.validate_on_submit():
+        album = form.album.data
         rating = form.rating.data
-        return render_template('album_data.html', name=album_name, rating=album_rating)
-    return "Sorry, no data avaiable."
+        return render_template('album_data.html', album_name=album, album_rating=rating)
+    flash('All fields are required!')
+    return redirect(url_for('album_entry'))
 
 if __name__ == '__main__':
-    app.run(use_reloader=True,debug=True)
+    app.run(use_reloader=True, debug=True)
