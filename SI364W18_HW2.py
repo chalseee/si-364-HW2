@@ -50,16 +50,13 @@ def hello_world():
 def hello_user(name):
     return '<h1>Hello {0}<h1>'.format(name)
 
-@app.route('/artistinfo', methods=[ 'GET'])
+@app.route('/artistinfo', methods=['GET'])
 def artist_info():
     if request.method == "GET":
         name = request.args['artist']
         url = 'https://itunes.apple.com/search?entity=musicTrack&term={}'.format(name)
         r = requests.get(url)
-        artist = r.json()['results']
-        objs = []
-        for a in artist:
-            objs.append({'trackName':a['trackName'], 'trackViewUrl':a['trackViewUrl']})
+        objs = r.json()['results']
         return render_template('artist_info.html', objects=objs)
 
 @app.route('/artistlinks')
@@ -82,7 +79,7 @@ def album_entry():
     form_var = AlbumEntryForm()
     return render_template('album_entry.html', form=form_var)
 
-@app.route('/album_result', methods = ['GET', 'POST'])
+@app.route('/album_result', methods=['GET', 'POST'])
 def album_result():
     form = AlbumEntryForm(request.form)
     if request.method == 'POST' and form.validate_on_submit():
